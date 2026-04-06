@@ -1,0 +1,21 @@
+task generateGitProperties {
+	if (!rootProject.ext.isGitCheckout) {
+		logger.warn("Not building from a git checkout, skipping git.properties generation")
+		return
+	}
+	def commitHash = rootProject.ext.gitCommitHash()
+	def outputFile = layout.buildDirectory.file("resources/main/git.properties").get().asFile
+	outputs.file(outputFile)
+	doLast {
+		outputFile.text = "git.commit.id=${commitHash}"
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	dependsOn generateGitProperties
+}
+
+
+dependencies {
+	implementation 'org.apache.commons:commons-lang3'
+}
